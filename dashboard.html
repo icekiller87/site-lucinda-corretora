@@ -4,38 +4,16 @@
      data-sitekey="0x4AAAAAAEijw3wAcGGz25Wt"
      data-action="login_lucinda"
      data-theme="light"
-     data-appearance="always"
-     data-callback="captchaReady"
-     data-error-callback="captchaFailed"
-     data-expired-callback="captchaExpired">
-</div>
-<small class="captcha-hint" id="captchaHint">Aguarde a verificação de segurança.</small>
+     data-size="flexible"></div>
+<small class="captcha-hint" id="captchaHint">Verificação de segurança necessária para entrar.</small>
 </div><button id="loginButton" type="submit">Entrar</button><b id="loginStatus" aria-live="polite"></b></form></section>
 <main id="dashboard" hidden><header><div><small>CONSULTORIA LUCINDA MENEZES</small><h1>Visão geral</h1><p id="updated">Carregando...</p></div><nav><a href="/" target="_blank">Abrir site</a><button id="refresh">Atualizar</button><button id="logout">Sair</button></nav></header>
 <div class="period"><button class="active" data-days="7">7 dias</button><button data-days="30">30 dias</button><button data-days="0">Todo período</button></div>
 <section class="kpis"><article><span>Visualizações</span><strong id="views">0</strong><small>páginas abertas</small></article><article><span>Cliques de contato</span><strong id="clicks">0</strong><small>WhatsApp, telefone e formulários</small></article><article><span>Taxa de contato</span><strong id="ctr">0%</strong><small>ações ÷ visualizações</small></article><article><span>Retornos solicitados</span><strong id="callbacks">0</strong><small>cadastros voluntários</small></article></section>
 <section class="grid"><article class="panel"><h2>Canais de contato</h2><div class="bars" id="channels"></div></article><article class="panel"><h2>Principais cidades</h2><div class="bars" id="cities"></div></article><article class="panel"><h2>Dispositivos</h2><div class="bars" id="devices"></div></article><article class="panel"><h2>Origem dos acessos</h2><div class="bars" id="sources"></div></article><article class="panel full"><div class="panel-head"><h2>Pedidos de retorno</h2><span id="leadCount">0 contatos</span></div><div class="table"><table><thead><tr><th>Nome</th><th>WhatsApp</th><th>Idade</th><th>Plano</th><th>Local</th><th>Data e horário</th></tr></thead><tbody id="leadRows"></tbody></table><p id="empty" hidden>Nenhum pedido neste período.</p></div></article></section><p class="error" id="error"></p></main>
 <script>
-const URL='https://dpqoufwigzlkkyxlumdi.supabase.co',KEY='sb_publishable_Ea37YwQnI2qepNBlqMVGpw_equvh5Bj';let days=7,events=[],leads=[],captchaToken='',captchaWidget=null;const $=id=>document.getElementById(id),labels={whatsapp_click:'WhatsApp',phone_click:'Ligação',instagram_click:'Instagram',hero_quote_submit:'Cotação rápida',table_quote_submit:'Tabela de preços',contact_form_submit:'Formulário completo',callback_request:'Pedido de retorno'},deviceLabels={mobile:'Celular',desktop:'Computador',tablet:'Tablet'};const contactEvents=new Set(['whatsapp_click','phone_click','instagram_click','hero_quote_submit','table_quote_submit','contact_form_submit','callback_request']);
+const URL='https://dpqoufwigzlkkyxlumdi.supabase.co',KEY='sb_publishable_Ea37YwQnI2qepNBlqMVGpw_equvh5Bj';let days=7,events=[],leads=[];const $=id=>document.getElementById(id),labels={whatsapp_click:'WhatsApp',phone_click:'Ligação',instagram_click:'Instagram',hero_quote_submit:'Cotação rápida',table_quote_submit:'Tabela de preços',contact_form_submit:'Formulário completo',callback_request:'Pedido de retorno'},deviceLabels={mobile:'Celular',desktop:'Computador',tablet:'Tablet'};const contactEvents=new Set(['whatsapp_click','phone_click','instagram_click','hero_quote_submit','table_quote_submit','contact_form_submit','callback_request']);
 const token=()=>sessionStorage.getItem('lucinda_dashboard_token');const headers=t=>({apikey:KEY,Authorization:`Bearer ${t}`});
-function setCaptchaHint(message){$('captchaHint').textContent=message}
-window.captchaReady=function(value){
-    captchaToken=value;
-    setCaptchaHint('Verificação concluída.');
-    $('loginStatus').textContent='';
-    $('loginButton').disabled=false;
-}
-window.captchaFailed=function(code){
-    captchaToken='';
-    setCaptchaHint(`Falha na verificação de segurança${code?` (${code})`:''}. Recarregue a página e tente novamente.`);
-    $('loginButton').disabled=false;
-    console.error('Turnstile:',code);
-}
-window.captchaExpired=function(){
-    captchaToken='';
-    setCaptchaHint('A verificação expirou. Aguarde uma nova verificação.');
-    $('loginButton').disabled=false;
-}
 async function signIn(email,password,captchaToken){const r=await fetch(`${URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password,gotrue_meta_security:{captcha_token:captchaToken}})});if(!r.ok){let detail='';try{const body=await r.json();detail=body?.msg||body?.message||body?.error_description||body?.error||''}catch{}console.error('Supabase Auth error:',r.status,detail);throw Error(detail||'E-mail, senha ou verificação de segurança incorretos.')}return r.json()}
 async function table(name,select,t){const r=await fetch(`${URL}/rest/v1/${name}?select=${encodeURIComponent(select)}&order=created_at.desc&limit=10000`,{headers:headers(t)});if(!r.ok)throw Error('Acesso sem permissão ou expirado.');return r.json()}
 const filtered=rows=>!days?rows:rows.filter(row=>new Date(row.created_at)>=Date.now()-days*86400000);function countBy(rows,key){const out={};rows.forEach(r=>{const k=key(r)||'Não informado';out[k]=(out[k]||0)+1});return Object.entries(out).sort((a,b)=>b[1]-a[1])}
@@ -44,28 +22,29 @@ function render(){const e=filtered(events),l=filtered(leads),v=e.filter(x=>x.eve
 async function load(){const t=token();if(!t)return showLogin();try{[events,leads]=await Promise.all([table('lucinda_analytics_events','event_name,referrer_domain,device_type,city,country,created_at',t),table('lucinda_leads_contacts','visitor_name,visitor_phone,holder_age,lives,plan_type,location,status,created_at',t)]);$('login').hidden=true;$('dashboard').hidden=false;render()}catch(e){sessionStorage.removeItem('lucinda_dashboard_token');showLogin(e.message)}}function showLogin(message=''){$('dashboard').hidden=true;$('login').hidden=false;$('loginStatus').textContent=message}
 $('loginForm').addEventListener('submit',async e=>{
     e.preventDefault();
-    $('loginStatus').textContent='';
     const btn=$('loginButton');
+    $('loginStatus').textContent='';
+
+    const d=new FormData($('loginForm'));
+    const captchaToken=d.get('cf-turnstile-response');
 
     if(!captchaToken){
-        $('loginStatus').textContent='Aguarde a verificação de segurança antes de entrar.';
+        $('loginStatus').textContent='Conclua a verificação de segurança antes de entrar.';
         btn.disabled=false;
         return;
     }
 
     btn.disabled=true;
+    $('loginStatus').textContent='Entrando...';
 
     try{
-        $('loginStatus').textContent='Entrando...';
-        const d=new FormData($('loginForm'));
         const s=await signIn(d.get('email'),d.get('password'),captchaToken);
         sessionStorage.setItem('lucinda_dashboard_token',s.access_token);
         await load();
     }catch(err){
         $('loginStatus').textContent=err.message;
-        captchaToken='';
-        window.turnstile?.reset();
         btn.disabled=false;
+        window.turnstile?.reset();
     }
-});document.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{days=Number(b.dataset.days);document.querySelectorAll('[data-days]').forEach(x=>x.classList.toggle('active',x===b));render()});$('refresh').onclick=load;$('logout').onclick=()=>{sessionStorage.removeItem('lucinda_dashboard_token');$('loginForm').reset();showLogin();captchaToken='';$('loginButton').disabled=false;window.turnstile?.reset()};load();
+});document.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{days=Number(b.dataset.days);document.querySelectorAll('[data-days]').forEach(x=>x.classList.toggle('active',x===b));render()});$('refresh').onclick=load;$('logout').onclick=()=>{sessionStorage.removeItem('lucinda_dashboard_token');$('loginForm').reset();showLogin();$('loginButton').disabled=false;window.turnstile?.reset()};load();
 </script></body></html>
