@@ -13,6 +13,38 @@ const allowedLives = new Set(["1 pessoa", "2 pessoas", "3 a 5 pessoas", "6 a 29 
 const allowedPlans = new Set(["Individual ou familiar", "Empresarial / PME", "Melhor idade", "Odontológico", "Quero ajuda para decidir"]);
 const validBrazilianMobile = /^(?:11|12|13|14|15|16|17|18|19|21|22|24|27|28|31|32|33|34|35|37|38|41|42|43|44|45|46|47|48|49|51|53|54|55|61|62|63|64|65|66|67|68|69|71|73|74|75|77|79|81|82|83|84|85|86|87|88|89|91|92|93|94|95|96|97|98|99)9\d{8}$/;
 
+
+const HCAPTCHA_SITEKEY = "8a8c292e-bbea-46ea-9390-519cc2ccb4b6";
+
+async function validateHCaptcha(token, request) {
+  const secret = process.env.HCAPTCHA_SECRET_KEY;
+  if (!secret) return { ok: false, unavailable: true };
+  if (typeof token !== "string" || !token || token.length > 4096) return { ok: false };
+
+  const remoteIp =
+    request.headers.get("x-nf-client-connection-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "";
+
+  const form = new URLSearchParams();
+  form.set("secret", secret);
+  form.set("response", token);
+  form.set("sitekey", HCAPTCHA_SITEKEY);
+  if (remoteIp) form.set("remoteip", remoteIp);
+
+  try {
+    const response = await fetch("https://api.hcaptcha.com/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: form.toString()
+    });
+    const result = await response.json();
+    return { ok: response.ok && result.success === true, errors: result["error-codes"] || [] };
+  } catch {
+    return { ok: false, unavailable: true };
+  }
+}
+
 async function saveLead(lead) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_PUBLISHABLE_KEY;
@@ -63,6 +95,14 @@ export default async (request, context) => {
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
   try {
     const body = await request.json();
+    const captcha = await validateHCaptcha(body.hcaptcha_token, request);
+    if (!captcha.ok) {
+      console.warn("hCaptcha rejected request", captcha.errors || []);
+      return json({
+        error: captcha.unavailable ? "Security verification unavailable" : "Security verification failed",
+        code: "CAPTCHA_REQUIRED"
+      }, captcha.unavailable ? 503 : 403);
+    }
     const name = String(body.name || "").trim().replace(/\s+/g, " ").slice(0, 100);
     const phone = String(body.phone || "").replace(/\D/g, "");
     const age = Number(body.age);
