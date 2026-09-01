@@ -93,11 +93,11 @@ create policy "lucinda_owner_read_analytics"
   on public.lucinda_analytics_events
   for select
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'mateuscmsilva5@gmail.com');
+  using (((select auth.jwt()) ->> 'email') = 'mateuscmsilva5@gmail.com');
 
 drop policy if exists "lucinda_owner_read_leads" on public.lucinda_leads_contacts;
 create policy "lucinda_owner_read_leads"
   on public.lucinda_leads_contacts
   for select
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'mateuscmsilva5@gmail.com');
+  using (((select auth.jwt()) ->> 'email') = 'mateuscmsilva5@gmail.com');
