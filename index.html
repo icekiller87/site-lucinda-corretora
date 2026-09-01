@@ -22,32 +22,195 @@
 <style>.captcha-wrap{display:grid;justify-items:center;gap:7px;width:100%;margin-top:2px}.captcha-wrap small{color:var(--muted);font-size:.72rem;text-align:center}.h-captcha{max-width:100%}</style>
 
 <style>
-.hero{position:relative;isolation:isolate;background:#0b1f3a;color:#fff;padding-top:82px}
-.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,28,50,.88) 0%,rgba(7,28,50,.64) 47%,rgba(7,28,50,.42) 100%)}
-.hero-slides{position:absolute;inset:0;z-index:-2;overflow:hidden}
-.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.04);animation:heroHospital 18s infinite}
-.hero-slide:nth-child(1){animation-delay:0s}.hero-slide:nth-child(2){animation-delay:6s}.hero-slide:nth-child(3){animation-delay:12s}
-@keyframes heroHospital{0%,28%{opacity:1;transform:scale(1)}34%,94%{opacity:0}100%{opacity:1}}
-.hero .eyebrow,.hero .hero-text,.hero .trust-list span{color:#eef7ff}.hero h1 em{color:#9fd9ff}.hero .button-secondary{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
-.hero .quote-card{color:var(--ink)}.hero .quote-card:before{opacity:.9}
-.hero-grid{padding-bottom:84px}.hero-orb{display:none}
-.hospital-note{margin-top:18px;font-size:.68rem;color:rgba(255,255,255,.76);max-width:620px}
-.news-section{padding:44px 0 72px;background:#fff}
-.news-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:22px}
-.news-head h2{font-size:clamp(2rem,3.6vw,3.5rem);margin-top:10px}.news-head p{color:var(--muted);max-width:520px;font-size:.9rem}
-.news-carousel{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(280px,1fr);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 14px;scrollbar-width:thin}
-.news-card{scroll-snap-align:start;min-height:235px;border-radius:22px;padding:25px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;color:#fff;background:#0b4a7f}
-.news-card:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,31,58,.05),rgba(11,31,58,.86));z-index:0}
-.news-card>*{position:relative;z-index:1}.news-card small{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#bfe5ff}.news-card h3{font-size:1.65rem;margin:8px 0 6px}.news-card p{font-size:.79rem;color:#e7f3fb}
-.news-card.pet{background:linear-gradient(135deg,#0b4a7f,#4c8a7b)}.news-card.business{background:linear-gradient(135deg,#163b65,#7c5b2c)}.news-card.national{background:linear-gradient(135deg,#1268a8,#0d6e64)}
-.about{padding:92px 0;background:#eef5f1}.about-art{min-height:510px}.about-art img{height:510px}.about-identity{position:absolute;left:24px;right:24px;bottom:24px;padding:20px 22px;border:1px solid rgba(255,255,255,.42);border-radius:18px;background:rgba(5,28,48,.78);backdrop-filter:blur(10px);color:#fff}
-.about-identity b{display:block;font:600 1.65rem 'Newsreader',serif}.about-identity span{display:block;margin-top:5px;font-size:.76rem;color:#d8edf9}
-.plan-grid{grid-template-columns:repeat(5,1fr)}.plan-card>p{min-height:98px}.plan-card.pet-card{background:linear-gradient(180deg,#f2fbf7,#fff)}.plan-card.pet-card .plan-icon{background:#2a8068}
-.operator-names{grid-template-columns:repeat(5,1fr)}.operator-card{display:grid;min-height:98px;padding:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:13px;text-align:center;align-content:center;gap:8px}.operator-card strong{font-size:.74rem}.operator-details{border:0;background:transparent;color:#9fd9ff;font-size:.66rem;font-weight:800;cursor:pointer}
+:root{
+  --navy:#071d34;
+  --navy-2:#0b3155;
+  --blue:#1268a8;
+  --teal:#257b70;
+  --teal-soft:#dff0eb;
+  --gold:#d8a94b;
+  --gold-soft:#f5e5bf;
+  --ivory:#f7f3ea;
+  --cloud:#eaf2f7;
+  --body:#30495f;
+}
+
+/* Paleta com contraste mais equilibrado: azul-marinho + azul/teal + dourado + marfim */
+body{background:var(--ivory);color:var(--ink)}
+p{color:var(--body)}
+.site-header{background:rgba(247,243,234,.94);border-bottom:1px solid rgba(11,31,58,.12)}
+.brand small{color:#48627a}
+.section-kicker,.eyebrow{color:var(--blue)}
+.button-primary{background:var(--blue);box-shadow:0 14px 28px rgba(18,104,168,.2)}
+.button-primary:hover{background:#0a548c}
+.button-gold{background:var(--gold);color:var(--navy)}
+.operators{background:linear-gradient(180deg,#fff 0%,#f5f8fa 100%)}
+.process{background:var(--ivory)}
+.faq{background:#fff}
+.criteria{background:linear-gradient(135deg,#0b4a7f,#1f6a67)}
+.contact{background:linear-gradient(135deg,var(--navy),#0a3455)}
+footer{background:var(--navy)}
+
+/* Formas decorativas para recuperar profundidade e contraste visual */
+.operators,.about,.process,.faq,.news-section{position:relative;isolation:isolate;overflow:hidden}
+.operators:before,.operators:after,.about:after,.process:before,.faq:after,.news-section:before{
+  content:"";position:absolute;z-index:-1;pointer-events:none
+}
+.operators:before{width:360px;height:360px;right:-190px;top:90px;border-radius:48% 52% 65% 35%/45% 38% 62% 55%;background:rgba(18,104,168,.08);border:1px solid rgba(18,104,168,.14)}
+.operators:after{width:220px;height:180px;left:-100px;bottom:80px;border-radius:60% 40% 48% 52%/38% 52% 48% 62%;background:rgba(216,169,75,.12)}
+.about:after{width:290px;height:290px;left:-145px;bottom:-70px;border-radius:55% 45% 67% 33%/48% 62% 38% 52%;background:rgba(216,169,75,.15)}
+.process:before{width:310px;height:260px;right:-160px;bottom:20px;border-radius:57% 43% 35% 65%/42% 58% 42% 58%;background:rgba(37,123,112,.10)}
+.faq:after{width:235px;height:215px;left:-125px;top:70px;border-radius:43% 57% 55% 45%/62% 37% 63% 38%;background:rgba(216,169,75,.11)}
+.news-section:before{width:430px;height:230px;right:-155px;top:-115px;border-radius:46% 54% 70% 30%/54% 40% 60% 46%;background:rgba(18,104,168,.08)}
+
+/* HERO — crossfade mais lento e suave */
+.hero{position:relative;isolation:isolate;background:var(--navy);color:#fff;padding-top:82px;min-height:660px}
+.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(90deg,rgba(4,20,37,.91) 0%,rgba(6,31,54,.76) 45%,rgba(6,31,54,.48) 100%),
+  radial-gradient(circle at 12% 15%,rgba(18,104,168,.22),transparent 34%)}
+.hero-slides{position:absolute;inset:0;z-index:-2;overflow:hidden;background:#071d34}
+.hero-slide{
+  position:absolute;inset:-2%;background-size:cover;background-position:center;
+  opacity:0;transform:scale(1.055);
+  transition:opacity 2.4s cubic-bezier(.4,0,.2,1),transform 8.2s cubic-bezier(.2,.7,.2,1);
+  will-change:opacity,transform
+}
+.hero-slide.is-active{opacity:1;transform:scale(1)}
+.hero-slide:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,20,37,.05),rgba(4,20,37,.18))}
+.hero .eyebrow,.hero .hero-text,.hero .trust-list span{color:#f0f7fb}
+.hero h1 em{color:#a9dcff}
+.hero .button-secondary{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08);backdrop-filter:blur(7px)}
+.hero .quote-card{color:var(--ink);background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}
+.hero .quote-card:before{background:var(--gold);opacity:.95}
+.hero-grid{padding-bottom:84px}
+.hero-orb{display:block}
+.orb-one{width:390px;height:390px;right:-130px;top:-110px;background:rgba(216,169,75,.12)}
+.orb-two{width:210px;height:210px;left:-90px;bottom:20px;border:1px solid rgba(169,220,255,.22)}
+.hospital-note{margin-top:18px;font-size:.69rem;color:rgba(255,255,255,.78);max-width:620px}
+.hero-progress{display:flex;gap:8px;margin-top:18px;align-items:center}
+.hero-dot{width:24px;height:4px;border:0;border-radius:99px;background:rgba(255,255,255,.28);padding:0;cursor:pointer;transition:.35s}
+.hero-dot.is-active{width:42px;background:var(--gold)}
+
+/* NOVIDADES — carrossel horizontal contínuo com setas */
+.news-section{padding:62px 0 78px;background:linear-gradient(180deg,#f7fbfd 0%,#edf4f7 100%);border-top:1px solid rgba(11,31,58,.08);border-bottom:1px solid rgba(11,31,58,.08)}
+.news-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:24px}
+.news-head h2{font-size:clamp(2rem,3.6vw,3.5rem);margin-top:10px;color:var(--navy)}
+.news-head p{color:#48627a;max-width:520px;font-size:.92rem}
+.news-viewport{position:relative}
+.news-carousel{overflow:hidden;padding:6px 2px 18px}
+.news-track{
+  display:flex;gap:18px;will-change:transform;
+  transition:transform .95s cubic-bezier(.22,.75,.2,1)
+}
+.news-track.no-transition{transition:none}
+.news-card{
+  flex:0 0 calc((100% - 36px)/3);min-width:0;min-height:270px;border-radius:24px;
+  padding:27px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;color:#fff;
+  background:linear-gradient(140deg,#0b4a7f,#1268a8);box-shadow:0 16px 36px rgba(11,31,58,.15);
+  transition:transform .35s ease,box-shadow .35s ease
+}
+.news-card:hover{transform:translateY(-5px);box-shadow:0 22px 44px rgba(11,31,58,.2)}
+.news-card:before{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 84% 18%,rgba(255,255,255,.18),transparent 25%),
+  linear-gradient(180deg,rgba(11,31,58,.02),rgba(7,29,52,.88));z-index:0}
+.news-card:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-45px;top:-55px;border:1px solid rgba(255,255,255,.22)}
+.news-card>*{position:relative;z-index:1}
+.news-card small{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;font-weight:800;color:#d9f0ff}
+.news-card h3{font-size:1.7rem;margin:9px 0 7px;color:#fff}
+.news-card p{font-size:.81rem;color:#eef6fb}
+.news-card.pet{background:linear-gradient(135deg,#17685d,#4a8c78)}
+.news-card.business{background:linear-gradient(135deg,#153b62,#8a6a32)}
+.news-card.national{background:linear-gradient(135deg,#0b4a7f,#1479b6)}
+.news-card:nth-child(4n){background:linear-gradient(135deg,#314c7a,#6e5b9a)}
+.news-card:nth-child(5n){background:linear-gradient(135deg,#155c73,#278d89)}
+.news-card:nth-child(6n){background:linear-gradient(135deg,#7b4e2e,#b17b42)}
+.news-arrow{
+  position:absolute;z-index:5;top:50%;width:46px;height:46px;margin-top:-23px;border-radius:50%;
+  border:1px solid rgba(11,31,58,.18);background:rgba(255,255,255,.96);color:var(--navy);
+  display:grid;place-items:center;font-size:1.35rem;cursor:pointer;box-shadow:0 10px 28px rgba(11,31,58,.16);
+  transition:.25s ease
+}
+.news-arrow:hover{transform:scale(1.06);background:var(--navy);color:#fff}
+.news-arrow.prev{left:-23px}.news-arrow.next{right:-23px}
+.news-dots{display:flex;justify-content:center;gap:7px;margin-top:4px}
+.news-dots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:#b7c6d1;cursor:pointer;transition:.25s}
+.news-dots button.is-active{width:24px;border-radius:99px;background:var(--blue)}
+
+/* SOBRE LUCINDA — mantém a imagem aprovada e dá mais destaque ao enquadramento */
+.about{padding:100px 0;background:linear-gradient(135deg,#eaf3f6 0%,#f8f3e9 100%)}
+.about-grid{gap:74px}
+.about-art{min-height:540px;position:relative;padding:14px 14px 38px 0}
+.about-art:before{
+  content:"";position:absolute;left:24px;right:-24px;top:36px;bottom:4px;border-radius:30px;
+  background:linear-gradient(140deg,var(--gold),#e8c775 46%,var(--teal));z-index:-1;transform:rotate(1.5deg)
+}
+.about-art:after{
+  content:"";position:absolute;left:-26px;top:-18px;width:130px;height:130px;border-radius:54% 46% 65% 35%/46% 58% 42% 54%;
+  background:rgba(18,104,168,.13);z-index:-1
+}
+.about-art img{
+  width:100%;height:515px;object-fit:cover;object-position:center 34%;border-radius:28px;
+  box-shadow:0 26px 58px rgba(11,31,58,.19);filter:saturate(.95) contrast(1.04)
+}
+.about-identity{
+  position:absolute;left:28px;right:4px;bottom:16px;padding:22px 24px;
+  border:1px solid rgba(255,255,255,.42);border-radius:19px;
+  background:linear-gradient(135deg,rgba(7,29,52,.92),rgba(11,74,127,.84));
+  backdrop-filter:blur(12px);color:#fff;box-shadow:0 12px 30px rgba(11,31,58,.18)
+}
+.about-identity:before{content:"✦";position:absolute;right:22px;top:16px;color:var(--gold);font-size:1.2rem}
+.about-identity b{display:block;font:600 1.8rem 'Newsreader',serif}
+.about-identity span{display:block;margin-top:5px;font-size:.78rem;color:#e7f3fb}
+.about-copy{padding:10px 0}
+.about-copy h2{color:var(--navy)}
+.about-copy .lead{color:#0b5570;font-size:1.36rem}
+.about-copy>p:not(.lead){color:#405b72;font-size:.94rem}
+
+/* Cards e contraste geral */
+.plan-card{background:#fff;border-color:rgba(11,31,58,.13);box-shadow:0 8px 22px rgba(11,31,58,.04)}
+.plan-card:hover{border-color:rgba(18,104,168,.28);box-shadow:0 16px 34px rgba(11,31,58,.1)}
+.plan-grid{grid-template-columns:repeat(5,1fr)}
+.plan-card>p{min-height:98px;color:#4a6277}
+.plan-card.pet-card{background:linear-gradient(180deg,#eaf7f1,#fff)}
+.plan-card.pet-card .plan-icon{background:var(--teal)}
+.plan-icon{background:var(--blue)}
+.operator-panel{background:linear-gradient(135deg,#071d34,#0b3155)}
+.operator-names{grid-template-columns:repeat(5,1fr)}
+.operator-card{display:grid;min-height:102px;padding:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;text-align:center;align-content:center;gap:8px}
+.operator-card strong{font-size:.75rem;color:#fff}
+.operator-details{border:0;background:transparent;color:#b8e1ff;font-size:.66rem;font-weight:800;cursor:pointer}
 .operator-detail-actions a{display:inline-flex}
 .location-national-note{color:var(--muted)}
-@media(max-width:1050px){.plan-grid{grid-template-columns:repeat(2,1fr)}.operator-names{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:760px){.hero{padding-top:46px}.hero:after{background:linear-gradient(180deg,rgba(7,28,50,.82),rgba(7,28,50,.72))}.hero-grid{padding-bottom:54px}.news-section{padding:34px 0 52px}.news-head{align-items:start;flex-direction:column}.about-grid{gap:38px}.about-art,.about-art img{min-height:390px;height:390px}.about-identity{left:14px;right:14px;bottom:14px}.plan-grid{grid-template-columns:1fr}.operator-names{grid-template-columns:repeat(2,1fr)}}
+.contact-form{box-shadow:0 24px 58px rgba(0,0,0,.14)}
+.accordion details{border-bottom-color:rgba(11,31,58,.14)}
+.accordion summary{color:var(--navy)}
+.accordion p{color:#48627a}
+
+@media(max-width:1050px){
+  .plan-grid{grid-template-columns:repeat(2,1fr)}
+  .operator-names{grid-template-columns:repeat(3,1fr)}
+  .news-card{flex-basis:calc((100% - 18px)/2)}
+  .news-arrow.prev{left:4px}.news-arrow.next{right:4px}
+}
+@media(max-width:760px){
+  .hero{padding-top:46px;min-height:auto}
+  .hero:after{background:linear-gradient(180deg,rgba(4,20,37,.86),rgba(4,20,37,.72))}
+  .hero-grid{padding-bottom:54px}
+  .news-section{padding:42px 0 58px}
+  .news-head{align-items:start;flex-direction:column}
+  .news-card{flex-basis:82vw;min-height:245px}
+  .news-arrow{width:40px;height:40px;margin-top:-20px}
+  .news-arrow.prev{left:6px}.news-arrow.next{right:6px}
+  .about-grid{gap:38px}
+  .about-art{min-height:430px;padding-right:7px}
+  .about-art img{height:405px}
+  .about-identity{left:14px;right:0;bottom:6px}
+  .plan-grid{grid-template-columns:1fr}
+  .operator-names{grid-template-columns:repeat(2,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-slide,.news-track{transition:none!important}
+}
 </style>
 
 </head>
@@ -71,7 +234,7 @@
   <main id="inicio">
     <section class="hero">
       <div class="hero-slides" aria-hidden="true">
-        <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1800&q=82')"></div>
+        <div class="hero-slide is-active" style="background-image:url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1800&q=82')"></div>
         <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=1800&q=82')"></div>
         <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1800&q=82')"></div>
       </div>
@@ -103,12 +266,21 @@
           <div><span class="section-kicker">Novidades dos planos</span><h2>O que vale a pena acompanhar agora.</h2></div>
           <p>Seleção de temas para ajudar você a comparar benefícios e oportunidades. Condições e disponibilidade são confirmadas na cotação.</p>
         </div>
-        <div class="news-carousel" aria-label="Novidades em seguros e saúde">
-          <article class="news-card national"><small>Cobertura nacional</small><h3>Planos para quem circula pelo Brasil</h3><p>Compare alternativas com rede regional ou nacional e escolha conforme a sua rotina.</p></article>
-          <article class="news-card business"><small>Empresas</small><h3>Benefícios que ajudam a cuidar da equipe</h3><p>PME e empresarial com opções por número de vidas, perfil e região de atendimento.</p></article>
-          <article class="news-card pet"><small>Novidade</small><h3>Sim, até seu pet pode ter plano.</h3><p>Assistência veterinária para deixar consultas, exames e cuidados mais previsíveis.</p></article>
-          <article class="news-card"><small>Comparação inteligente</small><h3>Rede, carência e coparticipação lado a lado</h3><p>Uma decisão melhor começa entendendo o que realmente muda entre as opções.</p></article>
+        <div class="news-viewport">
+          <button class="news-arrow prev" id="newsPrev" type="button" aria-label="Novidade anterior">‹</button>
+          <div class="news-carousel" id="newsCarousel" aria-label="Novidades em seguros e saúde">
+            <div class="news-track" id="newsTrack">
+              <article class="news-card national"><small>Cobertura nacional</small><h3>Planos para quem circula pelo Brasil</h3><p>Compare alternativas com rede regional ou nacional e escolha conforme a sua rotina.</p></article>
+              <article class="news-card business"><small>Empresas</small><h3>Benefícios que ajudam a cuidar da equipe</h3><p>PME e empresarial com opções por número de vidas, perfil e região de atendimento.</p></article>
+              <article class="news-card pet"><small>Novidade</small><h3>Sim, até seu pet pode ter plano.</h3><p>Assistência veterinária para deixar consultas, exames e cuidados mais previsíveis.</p></article>
+              <article class="news-card"><small>Comparação inteligente</small><h3>Rede, carência e coparticipação lado a lado</h3><p>Uma decisão melhor começa entendendo o que realmente muda entre as opções.</p></article>
+              <article class="news-card"><small>Atendimento nacional</small><h3>Consultoria onde você estiver</h3><p>Atendimento remoto para comparar possibilidades disponíveis em diferentes estados e cidades.</p></article>
+              <article class="news-card"><small>Escolha com calma</small><h3>Preço, rede e uso precisam conversar</h3><p>A melhor opção não é só a mais barata: ela precisa combinar com a sua rotina e prioridades.</p></article>
+            </div>
+          </div>
+          <button class="news-arrow next" id="newsNext" type="button" aria-label="Próxima novidade">›</button>
         </div>
+        <div class="news-dots" id="newsDots" aria-label="Posição do carrossel"></div>
       </div>
     </section>
 
@@ -477,6 +649,84 @@ Tenho interesse em ${operatorName}.`:`Tenho interesse em ${operatorName}.`;
         animateFaq(details,opening);
       }));
     }
+
+    // Hero: troca lenta e contínua, com crossfade e leve movimento da foto.
+    const heroSlides=[...document.querySelectorAll('.hero-slide')];
+    const heroDots=[...document.querySelectorAll('.hero-dot')];
+    let heroIndex=0,heroTimer;
+    const showHeroSlide=index=>{
+      heroIndex=(index+heroSlides.length)%heroSlides.length;
+      heroSlides.forEach((slide,i)=>slide.classList.toggle('is-active',i===heroIndex));
+      heroDots.forEach((dot,i)=>dot.classList.toggle('is-active',i===heroIndex));
+    };
+    const restartHero=()=>{
+      clearInterval(heroTimer);
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+      heroTimer=setInterval(()=>showHeroSlide(heroIndex+1),7200);
+    };
+    heroDots.forEach((dot,i)=>dot.addEventListener('click',()=>{showHeroSlide(i);restartHero()}));
+    showHeroSlide(0);restartHero();
+
+    // Novidades: carrossel contínuo, avançando suavemente para a esquerda.
+    const newsCarousel=document.getElementById('newsCarousel');
+    const newsTrack=document.getElementById('newsTrack');
+    const newsPrev=document.getElementById('newsPrev');
+    const newsNext=document.getElementById('newsNext');
+    const newsDots=document.getElementById('newsDots');
+    const originalNews=[...newsTrack.children];
+    const cloneCount=Math.min(3,originalNews.length);
+    originalNews.slice(-cloneCount).forEach(card=>newsTrack.insertBefore(card.cloneNode(true),newsTrack.firstChild));
+    originalNews.slice(0,cloneCount).forEach(card=>newsTrack.appendChild(card.cloneNode(true)));
+
+    let newsIndex=cloneCount,newsTimer;
+    originalNews.forEach((_,i)=>{
+      const dot=document.createElement('button');
+      dot.type='button';
+      dot.setAttribute('aria-label',`Ir para novidade ${i+1}`);
+      dot.addEventListener('click',()=>{
+        newsIndex=cloneCount+i;
+        positionNews(true);
+        restartNews();
+      });
+      newsDots.appendChild(dot);
+    });
+    const newsDotEls=[...newsDots.children];
+    const getNewsStep=()=>{
+      const first=newsTrack.querySelector('.news-card');
+      const gap=parseFloat(getComputedStyle(newsTrack).gap)||18;
+      return first.getBoundingClientRect().width+gap;
+    };
+    const realNewsIndex=()=>((newsIndex-cloneCount)%originalNews.length+originalNews.length)%originalNews.length;
+    const syncNewsDots=()=>newsDotEls.forEach((dot,i)=>dot.classList.toggle('is-active',i===realNewsIndex()));
+    const positionNews=animate=>{
+      newsTrack.classList.toggle('no-transition',!animate);
+      newsTrack.style.transform=`translate3d(${-newsIndex*getNewsStep()}px,0,0)`;
+      syncNewsDots();
+      if(!animate)requestAnimationFrame(()=>newsTrack.classList.remove('no-transition'));
+    };
+    const nextNews=()=>{newsIndex+=1;positionNews(true)};
+    const prevNews=()=>{newsIndex-=1;positionNews(true)};
+    newsTrack.addEventListener('transitionend',()=>{
+      if(newsIndex>=cloneCount+originalNews.length){
+        newsIndex=cloneCount;
+        positionNews(false);
+      }else if(newsIndex<cloneCount){
+        newsIndex=cloneCount+originalNews.length-1;
+        positionNews(false);
+      }
+    });
+    const restartNews=()=>{
+      clearInterval(newsTimer);
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+      newsTimer=setInterval(nextNews,5400);
+    };
+    newsPrev.addEventListener('click',()=>{prevNews();restartNews()});
+    newsNext.addEventListener('click',()=>{nextNews();restartNews()});
+    newsCarousel.addEventListener('mouseenter',()=>clearInterval(newsTimer));
+    newsCarousel.addEventListener('mouseleave',restartNews);
+    window.addEventListener('resize',()=>positionNews(false));
+    positionNews(false);restartNews();
+
     const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');revealObserver.unobserve(entry.target)}}),{threshold:.14});
     document.querySelectorAll('[data-reveal]').forEach(element=>revealObserver.observe(element));
   </script>
