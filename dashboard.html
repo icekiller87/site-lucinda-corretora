@@ -46,4 +46,4 @@ $('loginForm').addEventListener('submit',async e=>{
         window.hcaptcha?.reset();
     }
 });document.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{days=Number(b.dataset.days);document.querySelectorAll('[data-days]').forEach(x=>x.classList.toggle('active',x===b));render()});$('refresh').onclick=load;$('logout').onclick=()=>{sessionStorage.removeItem('lucinda_dashboard_token');$('loginForm').reset();showLogin();$('loginButton').disabled=false;window.hcaptcha?.reset()};load();
-</script></body></html>
+</script><script src="/dashboard-tools.js"></script></body></html>

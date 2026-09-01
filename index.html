@@ -72,12 +72,10 @@ footer{background:var(--navy)}
   radial-gradient(circle at 12% 15%,rgba(18,104,168,.22),transparent 34%)}
 .hero-slides{position:absolute;inset:0;z-index:-2;overflow:hidden;background:#071d34}
 .hero-slide{
-  position:absolute;inset:-2%;background-size:cover;background-position:center;
-  opacity:0;transform:scale(1.055);
-  transition:opacity 2.4s cubic-bezier(.4,0,.2,1),transform 8.2s cubic-bezier(.2,.7,.2,1);
-  will-change:opacity,transform
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  opacity:0;transition:opacity 1.35s ease;will-change:opacity
 }
-.hero-slide.is-active{opacity:1;transform:scale(1)}
+.hero-slide.is-active{opacity:1}
 .hero-slide:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,20,37,.05),rgba(4,20,37,.18))}
 .hero .eyebrow,.hero .hero-text,.hero .trust-list span{color:#f0f7fb}
 .hero h1 em{color:#a9dcff}
@@ -199,8 +197,8 @@ body{background:#f8f6ef;color:#102b43}
 .site-header{background:rgba(250,248,242,.97);backdrop-filter:none;-webkit-backdrop-filter:none}
 .nav-links a,.button,.plan-card,.operator-card,.about-links a{transition-duration:.34s;transition-timing-function:cubic-bezier(.2,.75,.25,1)}
 .hero:after{background:linear-gradient(90deg,rgba(4,20,37,.78) 0%,rgba(6,31,54,.57) 48%,rgba(6,31,54,.30) 100%),radial-gradient(circle at 12% 15%,rgba(18,104,168,.14),transparent 34%)}
-.hero-slide{filter:none;will-change:auto;transition:opacity 2.2s cubic-bezier(.4,0,.2,1),transform 9s cubic-bezier(.2,.7,.2,1)}
-.hero-slide.is-active{will-change:opacity,transform}
+.hero-slide{filter:none;transition:opacity 1.35s ease;will-change:opacity}
+.hero-slide.is-active{will-change:opacity}
 .hero h1{font-size:clamp(3rem,5.2vw,4.9rem);line-height:.98}
 .hero-text{font-size:1rem;max-width:590px}
 .about{padding:82px 0;background:linear-gradient(135deg,#eef5f7 0%,#fbf6ea 100%)}
@@ -282,7 +280,7 @@ body{background:#f8f6ef;color:#102b43}
         <span><b>Lucinda Menezes</b><small>Consultora e mentora em seguros saúde</small></span>
       </a>
       <nav class="nav-links" id="navLinks" aria-label="Navegação principal">
-        <a href="#novidades">Novidades</a><a href="#sobre">Sobre</a><a href="#planos">Planos</a><a href="#como-funciona">Como funciona</a><a href="#faq">Dúvidas</a>
+        <a href="#novidades">Novidades</a><a href="#sobre">Sobre</a><a href="#planos">Planos</a><a href="#como-funciona">Como funciona</a><a href="#faq">Dúvidas</a><a href="/seja-corretor.html">Seja um corretor</a>
       </nav>
       <div class="nav-actions">
         <a class="button button-small button-primary header-quote-button" href="#cotacao"><span class="cta-full">Fazer cotação</span><span class="cta-short">Cotar</span></a>
@@ -295,8 +293,11 @@ body{background:#f8f6ef;color:#102b43}
     <section class="hero">
       <div class="hero-slides" aria-hidden="true">
         <div class="hero-slide is-active" data-hospital="Hospital Sírio-Libanês • São Paulo" style="background-image:url('/assets/hospitais/hospital-sirio-libanes.jpg')"></div>
-        <div class="hero-slide" data-hospital="Hospital São Rafael • Salvador" style="background-image:url('/assets/hospitais/hospital-sao-rafael.jpg')"></div>
-        <div class="hero-slide" data-hospital="Hospital Mater Dei • Belo Horizonte" style="background-image:url('/assets/hospitais/hospital-mater-dei.jpg')"></div>
+        <div class="hero-slide" data-hospital="Hospital Albert Einstein • São Paulo" style="background-image:url('/assets/hospitais/hospital-albert-einstein.jpg')"></div>
+        <div class="hero-slide" data-hospital="Hospital Santa Izabel • Salvador" style="background-image:url('/assets/hospitais/hospital-santa-izabel.jpg')"></div>
+        <div class="hero-slide" data-hospital="Hospital São Rafael • área interna" style="background-image:url('/assets/hospitais/hospital-sao-rafael-interno.jpg')"></div>
+        <div class="hero-slide" data-hospital="Hospital Sírio-Libanês • Brasília — área interna" style="background-image:url('/assets/hospitais/hospital-sirio-brasilia-interno.jpg')"></div>
+        <div class="hero-slide" data-hospital="Hospital Moinhos de Vento • Porto Alegre — área interna" style="background-image:url('/assets/hospitais/hospital-moinhos-interno.jpg')"></div>
       </div>
       <div class="shell hero-grid">
         <div class="hero-copy" data-reveal>
@@ -481,6 +482,15 @@ Quantidade: ${heroVidas.value}`)});
     const nameField=document.getElementById('nome'),phoneField=document.getElementById('telefone'),ageField=document.getElementById('idade'),livesField=document.getElementById('vidas'),typeField=document.getElementById('tipo'),localField=document.getElementById('local'),consentField=document.getElementById('consent'),callbackField=document.getElementById('callbackRequest'),callbackStatus=document.getElementById('callbackStatus');
     const normalizeLocal=value=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' ').trim();
     const validBrazilianMobile=/^(?:11|12|13|14|15|16|17|18|19|21|22|24|27|28|31|32|33|34|35|37|38|41|42|43|44|45|46|47|48|49|51|53|54|55|61|62|63|64|65|66|67|68|69|71|73|74|75|77|79|81|82|83|84|85|86|87|88|89|91|92|93|94|95|96|97|98|99)9\d{8}$/;
+    document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{
+      const target=document.querySelector(link.getAttribute('href'));
+      if(!target)return;
+      event.preventDefault();
+      const header=document.querySelector('.site-header');
+      const top=target.getBoundingClientRect().top+scrollY-(header?.offsetHeight||0)-18;
+      scrollTo({top:Math.max(0,top),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      history.replaceState(null,'',link.getAttribute('href'));
+    }));
     const setFieldError=(field,errorId,message)=>{
       const error=document.getElementById(errorId);
       const visual=field.matches('select')?field.closest('.smooth-select')?.querySelector('.smooth-select-trigger'):field;
@@ -732,7 +742,7 @@ Tenho interesse em ${operatorName}.`:`Tenho interesse em ${operatorName}.`;
     const restartHero=()=>{
       clearInterval(heroTimer);
       if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-      heroTimer=setInterval(()=>showHeroSlide(heroIndex+1),7200);
+      heroTimer=setInterval(()=>showHeroSlide(heroIndex+1),matchMedia('(max-width: 700px)').matches?4800:6500);
     };
     heroDots.forEach((dot,i)=>dot.addEventListener('click',()=>{showHeroSlide(i);restartHero()}));
     showHeroSlide(0);restartHero();
