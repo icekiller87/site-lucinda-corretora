@@ -18,7 +18,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="mobile.css">
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -169,10 +168,6 @@
           <datalist id="localSuggestions"><option value="Pituba, Salvador"><option value="Barra, Salvador"><option value="Brotas, Salvador"><option value="Cabula, Salvador"><option value="Imbuí, Salvador"><option value="Itapuã, Salvador"><option value="Rio Vermelho, Salvador"><option value="Centro, Lauro de Freitas"><option value="Vilas do Atlântico, Lauro de Freitas"><option value="Centro, Camaçari"><option value="Centro, Simões Filho"></datalist>
           <label>O que é mais importante? <span class="optional">opcional</span><textarea id="prioridade" rows="3" placeholder="Hospitais de preferência, orçamento, abrangência..."></textarea></label>
           <label class="consent" id="consentLabel"><input id="consent" type="checkbox" required aria-describedby="consentError"><span>Concordo em enviar estes dados para atendimento da minha cotação pelo WhatsApp ou pelo retorno solicitado.</span></label><small class="field-error consent-error" id="consentError" aria-live="polite"></small>
-          <div class="captcha-wrap">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAAEijw3wAcGGz25Wt" data-action="contact_lucinda" data-theme="light" data-size="flexible"></div>
-            <small>Verificação de segurança necessária apenas para solicitar retorno.</small>
-          </div>
           <button class="button button-gold button-full" type="submit">Enviar para Lucinda <span>→</span></button>
           <button class="callback-button" id="callbackRequest" type="button">
             <b>Prefere que eu entre em contato com você?</b>
@@ -195,7 +190,11 @@
     const menuButton=document.getElementById('menuButton'),navLinks=document.getElementById('navLinks');
     menuButton.addEventListener('click',()=>{const open=navLinks.classList.toggle('open');menuButton.classList.toggle('open',open);menuButton.setAttribute('aria-expanded',open);menuButton.setAttribute('aria-label',open?'Fechar menu':'Abrir menu')});
     navLinks.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{navLinks.classList.remove('open');menuButton.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Abrir menu')}));
-    document.getElementById('heroForm').addEventListener('submit',event=>{event.preventDefault();trackEvent('hero_quote_submit');openWhatsapp(`Olá, Lucinda! Quero cotar um plano de saúde.\n\nNome: ${heroNome.value}\nPerfil: ${heroPerfil.value}\nQuantidade: ${heroVidas.value}`)});
+    document.getElementById('heroForm').addEventListener('submit',event=>{event.preventDefault();trackEvent('hero_quote_submit');openWhatsapp(`Olá, Lucinda! Quero cotar um plano de saúde.\
+
+Nome: ${heroNome.value}\
+Perfil: ${heroPerfil.value}\
+Quantidade: ${heroVidas.value}`)});
     const contactForm=document.getElementById('contactForm');
     const nameField=document.getElementById('nome'),phoneField=document.getElementById('telefone'),ageField=document.getElementById('idade'),livesField=document.getElementById('vidas'),typeField=document.getElementById('tipo'),localField=document.getElementById('local'),consentField=document.getElementById('consent'),callbackField=document.getElementById('callbackRequest'),callbackStatus=document.getElementById('callbackStatus');
     const normalizeLocal=value=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' ').trim();
@@ -269,7 +268,15 @@
     contactForm.addEventListener('submit',event=>{
       event.preventDefault();
       if(!validateContactForm())return;
-      const quoteMessage=`Olá, Lucinda! Gostaria de receber uma cotação de plano de saúde.\n\nNome: ${nameField.value.trim()}\nWhatsApp: ${phoneField.value}\nIdade do titular: ${ageField.value}\nQuantidade: ${livesField.value}\nTipo: ${typeField.value}\nLocal: ${localField.value.trim()}\nPrioridades: ${prioridade.value||'Não informadas'}`;
+      const quoteMessage=`Olá, Lucinda! Gostaria de receber uma cotação de plano de saúde.\
+
+Nome: ${nameField.value.trim()}\
+WhatsApp: ${phoneField.value}\
+Idade do titular: ${ageField.value}\
+Quantidade: ${livesField.value}\
+Tipo: ${typeField.value}\
+Local: ${localField.value.trim()}\
+Prioridades: ${prioridade.value||'Não informadas'}`;
       trackEvent('contact_form_submit');
       callbackStatus.textContent='';
       openWhatsapp(quoteMessage);
@@ -278,20 +285,23 @@
     });
     callbackField.addEventListener('click',()=>{
       if(!validateContactForm())return;
-      const captchaToken=new FormData(contactForm).get('cf-turnstile-response');
-      if(!captchaToken){callbackStatus.textContent='Conclua a verificação de segurança antes de solicitar o retorno.';return}
       callbackField.disabled=true;
       callbackStatus.textContent='Enviando seu pedido de retorno...';
       trackEvent('callback_request');
       const requestId=crypto.randomUUID();
       fetch('/.netlify/functions/lucinda-lead',{
         method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
-        body:JSON.stringify({request_id:requestId,name:nameField.value.trim(),phone:phoneField.value,age:Number(ageField.value),lives:livesField.value,plan_type:typeField.value,location:localField.value.trim(),callback_consent:true,turnstile_token:captchaToken})
-      }).then(async response=>{const result=await response.json().catch(()=>({}));if(!response.ok){const error=new Error('Falha no cadastro');if(response.status===429||result.code==='CONTACT_COOLDOWN_24H')error.userMessage='Você já solicitou contato com este nome e telefone. Aguarde 24 horas para enviar uma nova solicitação.';else if(result.code==='CAPTCHA_REQUIRED')error.userMessage='A verificação de segurança expirou ou não foi aceita. Tente novamente.';throw error}callbackStatus.textContent='Pedido enviado! Lucinda recebeu seus dados e entrará em contato.';if(result.contact_token){sessionStorage.setItem('lucindaCallbackRequestId',requestId);sessionStorage.setItem('lucindaCallbackToken',result.contact_token);sessionStorage.setItem('lucindaCallbackPhone',phoneField.value.replace(/\D/g,''));sessionStorage.setItem('lucindaCallbackName',nameField.value.trim());sessionStorage.removeItem('lucindaBothNotified');notifyBothContactMethods()}})
+        body:JSON.stringify({request_id:requestId,name:nameField.value.trim(),phone:phoneField.value,age:Number(ageField.value),lives:livesField.value,plan_type:typeField.value,location:localField.value.trim(),callback_consent:true})
+      }).then(async response=>{const result=await response.json().catch(()=>({}));if(!response.ok){const error=new Error('Falha no cadastro');if(response.status===429||result.code==='CONTACT_COOLDOWN_24H')error.userMessage='Você já solicitou contato com este nome e telefone. Aguarde 24 horas para enviar uma nova solicitação.';throw error}callbackStatus.textContent='Pedido enviado! Lucinda recebeu seus dados e entrará em contato.';if(result.contact_token){sessionStorage.setItem('lucindaCallbackRequestId',requestId);sessionStorage.setItem('lucindaCallbackToken',result.contact_token);sessionStorage.setItem('lucindaCallbackPhone',phoneField.value.replace(/\D/g,''));sessionStorage.setItem('lucindaCallbackName',nameField.value.trim());sessionStorage.removeItem('lucindaBothNotified');notifyBothContactMethods()}})
         .catch(error=>{callbackStatus.textContent=error.userMessage||'Não foi possível registrar o retorno agora. Tente novamente ou envie pelo WhatsApp.'})
-        .finally(()=>{callbackField.disabled=false;window.turnstile?.reset()});
+        .finally(()=>{callbackField.disabled=false});
     });
-    document.getElementById('tableForm').addEventListener('submit',event=>{event.preventDefault();trackEvent('table_quote_submit');openWhatsapp(`Olá, Lucinda! Quero consultar uma tabela atualizada de plano de saúde.\n\nOperadora: ${tableOperator.value}\nModalidade: ${tableType.value}\nFaixa etária: ${tableAge.value}\nLocal: ${tableCity.value}`)});
+    document.getElementById('tableForm').addEventListener('submit',event=>{event.preventDefault();trackEvent('table_quote_submit');openWhatsapp(`Olá, Lucinda! Quero consultar uma tabela atualizada de plano de saúde.\
+
+Operadora: ${tableOperator.value}\
+Modalidade: ${tableType.value}\
+Faixa etária: ${tableAge.value}\
+Local: ${tableCity.value}`)});
     document.addEventListener('click',event=>{const link=event.target.closest('a[href]');if(!link)return;const href=link.getAttribute('href')||'';if(href.includes('wa.me'))trackEvent('whatsapp_click');else if(href.startsWith('tel:'))trackEvent('phone_click');else if(href.includes('instagram.com'))trackEvent('instagram_click')});
     trackEvent('page_view');
     const operatorData={
